@@ -1,0 +1,24 @@
+---
+import MobilePostEditor from "@/components/pages/MobilePostEditor.svelte";
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="写博客" description="Mobile post editor">
+	<main class="write-page">
+		<MobilePostEditor client:load />
+	</main>
+</Layout>
+
+<style>
+	.write-page {
+		min-height: 100vh;
+		padding: 5.5rem 1rem 2rem;
+		background: var(--page-bg);
+	}
+
+	@media (min-width: 768px) {
+		.write-page {
+			padding-inline: 2rem;
+		}
+	}
+</style>

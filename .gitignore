@@ -1,5 +1,6 @@
 # build output
 dist/
+firefly-dist.tar.gz
 
 # generated types
 .astro/
@@ -12,6 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 
 # environment variables
 .env
