@@ -43,9 +43,15 @@
 
 	async function publishCurrentPost() {
 		publishMessage = "";
+		error = "";
 
-		if (!result) {
-			error = "请先补全标题、分类和正文";
+		const missingFields = [];
+		if (!title.trim()) missingFields.push("标题");
+		if (!contentType.trim()) missingFields.push("分类");
+		if (!body.trim()) missingFields.push("正文");
+
+		if (missingFields.length > 0) {
+			error = `请先补全：${missingFields.join("、")}`;
 			return;
 		}
 
@@ -53,6 +59,18 @@
 			error = "请先填写 GitHub Token";
 			return;
 		}
+
+		const post = createPostFromEditorSubmission(
+			{
+				title,
+				contentType,
+				description,
+				tags,
+				body,
+				publishMode,
+			},
+			new Date(),
+		);
 
 		isPublishing = true;
 		error = "";
@@ -63,8 +81,8 @@
 				owner: "Aeghur",
 				repo: "Firefly",
 				branch: "master",
-				filePath: result.filePath,
-				markdown: result.markdown,
+				filePath: post.filePath,
+				markdown: post.markdown,
 			});
 			publishMessage = "已提交到 GitHub，Actions 会开始构建并发布。";
 		} catch (publishError) {
