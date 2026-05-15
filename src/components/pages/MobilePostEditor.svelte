@@ -149,21 +149,6 @@
 				<p class="success">{publishMessage}</p>
 			{/if}
 		</form>
-
-		<aside class="preview-panel" aria-label="生成预览">
-			<div class="preview-meta">
-				<span>生成预览</span>
-				{#if result}
-					<code>{result.filePath}</code>
-				{/if}
-			</div>
-
-			{#if error}
-				<p class="error">{error}</p>
-			{:else if result}
-				<pre>{result.markdown}</pre>
-			{/if}
-		</aside>
 	</div>
 </section>
 
@@ -233,8 +218,7 @@
 		gap: 1rem;
 	}
 
-	.editor-form,
-	.preview-panel {
+	.editor-form {
 		border: 1px solid var(--line-divider);
 		border-radius: 8px;
 		background: var(--card-bg);
@@ -264,43 +248,9 @@
 		line-height: 1.7;
 	}
 
-	.preview-panel {
-		min-height: 18rem;
-		overflow: hidden;
-	}
-
-	.preview-meta {
-		display: grid;
-		gap: 0.35rem;
-		padding: 0.85rem 1rem;
-		border-bottom: 1px solid var(--line-divider);
-		color: var(--secondary);
-		font-weight: 700;
-	}
-
-	.preview-meta code {
-		display: block;
-		overflow-wrap: anywhere;
-		color: var(--meta);
-		font-weight: 400;
-	}
-
-	pre {
-		margin: 0;
-		padding: 1rem;
-		overflow: auto;
-		white-space: pre-wrap;
-		line-height: 1.65;
-	}
-
 	.error {
 		margin: 0;
-		padding: 1rem;
 		color: #d14343;
-	}
-
-	.error.compact {
-		padding: 0;
 	}
 
 	.success {
@@ -311,11 +261,11 @@
 
 	@media (min-width: 920px) {
 		.editor-grid {
-			grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+			grid-template-columns: minmax(0, 44rem);
+			justify-content: center;
 		}
 
-		.editor-form,
-		.preview-panel {
+		.editor-form {
 			min-height: 34rem;
 		}
 	}
