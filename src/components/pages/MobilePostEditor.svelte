@@ -21,7 +21,6 @@
 	let isUnlocking = false;
 
 	onMount(() => {
-		token = localStorage.getItem("firefly.githubToken") ?? "";
 		hasUnlockPassword = Boolean(localStorage.getItem("firefly.unlockHash"));
 	});
 
@@ -70,7 +69,6 @@
 		error = "";
 
 		try {
-			localStorage.setItem("firefly.githubToken", token.trim());
 			await publishPostToGitHub({
 				token: token.trim(),
 				owner: "Aeghur",
@@ -204,7 +202,7 @@
 					bind:value={token}
 					type="password"
 					autocomplete="off"
-					placeholder="只保存在这台设备的浏览器里"
+					placeholder="仅本次页面会话使用，不会保存"
 				/>
 			</label>
 

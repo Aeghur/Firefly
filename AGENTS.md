@@ -11,3 +11,7 @@ This repo uses the default mattpocock/skills triage labels. See `docs/agents/tri
 ### Domain docs
 
 This repo uses a single-context domain documentation layout. See `docs/agents/domain.md`.
+
+### Mobile publishing security
+
+The `/write/` page is a static mobile writing console. Treat its local unlock as a convenience guard, not real server-side authentication. See `docs/mobile-publishing-security.md`.
