@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { createPostFromEditorSubmission } from "@/utils/mobile-post.mjs";
 	import { publishPostToGitHub } from "@/utils/github-publisher.mjs";
+	import { hashPassword, verifyPassword } from "@/utils/local-unlock.mjs";
 
 	let title = "";
 	let contentType = "";
@@ -13,9 +14,15 @@
 	let token = "";
 	let isPublishing = false;
 	let publishMessage = "";
+	let isUnlocked = false;
+	let hasUnlockPassword = false;
+	let unlockPassword = "";
+	let unlockError = "";
+	let isUnlocking = false;
 
 	onMount(() => {
 		token = localStorage.getItem("firefly.githubToken") ?? "";
+		hasUnlockPassword = Boolean(localStorage.getItem("firefly.unlockHash"));
 	});
 
 	$: tags = tagsText
@@ -80,9 +87,67 @@
 			isPublishing = false;
 		}
 	}
+
+	async function handleUnlock() {
+		const password = unlockPassword.trim();
+		unlockError = "";
+
+		if (!password) {
+			unlockError = "请输入密码";
+			return;
+		}
+
+		isUnlocking = true;
+
+		try {
+			const savedHash = localStorage.getItem("firefly.unlockHash");
+
+			if (!savedHash) {
+				localStorage.setItem("firefly.unlockHash", await hashPassword(password));
+				hasUnlockPassword = true;
+				isUnlocked = true;
+				unlockPassword = "";
+				return;
+			}
+
+			if (!(await verifyPassword(password, savedHash))) {
+				unlockError = "密码不正确";
+				return;
+			}
+
+			isUnlocked = true;
+			unlockPassword = "";
+		} finally {
+			isUnlocking = false;
+		}
+	}
 </script>
 
 <section class="editor-shell" aria-label="手机写博客">
+	{#if !isUnlocked}
+		<div class="unlock-panel">
+			<p class="eyebrow">Writer access</p>
+			<h1>{hasUnlockPassword ? "解锁写作后台" : "设置写作密码"}</h1>
+			<p>
+				{hasUnlockPassword
+					? "输入这台设备保存的写作密码。"
+					: "第一次使用时设置一个本机密码，之后打开写作页需要先解锁。"}
+			</p>
+			<input
+				bind:value={unlockPassword}
+				type="password"
+				autocomplete="current-password"
+				placeholder="写作密码"
+				on:keydown={(event) => event.key === "Enter" && handleUnlock()}
+			/>
+			<button type="button" disabled={isUnlocking} on:click={handleUnlock}>
+				{isUnlocking ? "处理中..." : hasUnlockPassword ? "解锁" : "设置并进入"}
+			</button>
+			{#if unlockError}
+				<p class="error compact">{unlockError}</p>
+			{/if}
+		</div>
+	{:else}
 	<header class="editor-header">
 		<div>
 			<p class="eyebrow">Mobile writer</p>
@@ -167,6 +232,7 @@
 			{/if}
 		</aside>
 	</div>
+	{/if}
 </section>
 
 <style>
@@ -182,6 +248,24 @@
 		justify-content: space-between;
 		gap: 1rem;
 		margin-bottom: 1rem;
+	}
+
+	.unlock-panel {
+		display: grid;
+		gap: 0.85rem;
+		width: min(100%, 28rem);
+		margin: 10vh auto 0;
+		padding: 1.25rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 8px;
+		background: var(--card-bg);
+		box-shadow: var(--shadow);
+	}
+
+	.unlock-panel p {
+		margin: 0;
+		color: var(--secondary);
+		line-height: 1.7;
 	}
 
 	.eyebrow {
@@ -299,6 +383,10 @@
 		margin: 0;
 		padding: 1rem;
 		color: #d14343;
+	}
+
+	.error.compact {
+		padding: 0;
 	}
 
 	.success {
