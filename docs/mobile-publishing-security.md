@@ -1,20 +1,48 @@
 # Mobile Publishing Security
 
-The `/write/` page is a static-page writing console. Its local unlock password is a convenience guard for the current browser, not real server-side authentication.
+The `/write/` page is a static-page writing console. It must be protected by the web server before it is exposed on the public internet.
 
 ## Current rules
 
 - Do not store the GitHub token in `localStorage`.
+- Protect `/write/` with HTTP Basic Auth or an equivalent server-side access control.
 - Use a fine-grained GitHub token limited to the `Aeghur/Firefly` repository.
 - Grant only `Contents: Read and write`.
 - Revoke and recreate the token if a phone or browser profile is lost.
 - Keep SSH deploy access limited to the `deploy` user and `/var/www/blog`.
 
-## Recommended server protection
+## Nginx Basic Auth
 
-Protect `/write/` at the web server layer before relying on it from the public internet.
+Create a password file:
 
-For Nginx, add HTTP Basic Auth or an IP allowlist for the `/write/` location. The static-page unlock is still useful after that, but it should not be the only protection.
+```bash
+sudo apt update
+sudo apt install apache2-utils
+sudo htpasswd -c /etc/nginx/.firefly-write.htpasswd aeghur
+```
+
+Add this inside the site's `server { ... }` block:
+
+```nginx
+location = /write {
+    auth_basic "Firefly Writer";
+    auth_basic_user_file /etc/nginx/.firefly-write.htpasswd;
+    return 301 /write/;
+}
+
+location ^~ /write/ {
+    auth_basic "Firefly Writer";
+    auth_basic_user_file /etc/nginx/.firefly-write.htpasswd;
+    try_files $uri $uri/ =404;
+}
+```
+
+Validate and reload:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
 
 ## What not to do
 
