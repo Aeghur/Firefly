@@ -137,9 +137,13 @@
 				/>
 			</label>
 
-			<button type="button" disabled={isPublishing || !result} on:click={publishCurrentPost}>
+			<button type="button" disabled={isPublishing} on:click={publishCurrentPost}>
 				{isPublishing ? "提交中..." : "提交到 GitHub"}
 			</button>
+
+			{#if error}
+				<p class="error compact">{error}</p>
+			{/if}
 
 			{#if publishMessage}
 				<p class="success">{publishMessage}</p>
@@ -293,6 +297,10 @@
 		margin: 0;
 		padding: 1rem;
 		color: #d14343;
+	}
+
+	.error.compact {
+		padding: 0;
 	}
 
 	.success {
